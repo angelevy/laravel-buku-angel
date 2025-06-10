@@ -6,5 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Buku extends Model
 {
-    protected $fillable = ['title', 'author', 'image', 'user_id'];
+    protected $table = 'buku-api';
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'title',
+        'author',
+        'email'
+    ];
+
+    public $timestamps = false;
+
+    public function getGambarUrlAttribute()
+    {
+        return asset('storage/' . $this->gambar);
+    }
 }
