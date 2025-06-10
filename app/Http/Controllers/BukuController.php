@@ -35,7 +35,10 @@ class BukuController extends Controller
             'image' => $imagePath
         ]);
 
-        return new BukuResource($buku);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Buku berhasil disimpan',
+        ]);
     }
 
     public function update(Request $request, Buku $buku)
