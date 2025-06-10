@@ -109,6 +109,19 @@ class BukuController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        $buku = Buku::find($id);
+        if (!$buku) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan.'
+            ], 404);
+        }
+
+        return response()->json($buku);
+    }
+
     public function destroy(Request $request, $id)
     {
         $email = $request->header('Authorization');

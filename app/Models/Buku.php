@@ -12,7 +12,8 @@ class Buku extends Model
     protected $fillable = [
         'title',
         'author',
-        'email'
+        'email',
+        'image'
     ];
 
     public $timestamps = false;
