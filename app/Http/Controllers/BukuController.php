@@ -48,7 +48,7 @@ class BukuController extends Controller
                 'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             ]);
 
-            $path = $request->file('image')->store('gambar-buku-api', 'public');
+            $path = $request->file('image')->store('gambar-buku_api', 'public');
 
             Buku::create([
                 'title' => $request->title,
@@ -97,7 +97,7 @@ class BukuController extends Controller
                 Storage::disk('public')->delete($bukuApi->image);
             }
 
-            $path = $request->file('image')->store('gambar-buku-api', 'public');
+            $path = $request->file('image')->store('gambar-buku_api', 'public');
             $bukuApi->image = $path;
         }
 

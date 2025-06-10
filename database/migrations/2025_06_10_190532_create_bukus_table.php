@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('buku-api', function (Blueprint $table) {
+        Schema::create('buku_api', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->string('author');
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('buku-api');
+        Schema::dropIfExists('buku_api');
     }
 };

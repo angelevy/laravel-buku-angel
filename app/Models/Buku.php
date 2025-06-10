@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Buku extends Model
 {
-    protected $table = 'buku-api';
+    protected $table = 'buku_api';
     protected $primaryKey = 'id';
 
     protected $fillable = [
