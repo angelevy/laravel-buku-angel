@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Buku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -32,120 +33,76 @@ class BukuController extends Controller
         return response()->json($data);
     }
 
-    public function create()
-    {
-        return view('create');
-    }
-
     public function store(Request $request)
     {
-        $email = $request->header('Authorization');
-
-        if ($email) {
-            $request->validate([
-                'title' => 'required|string|max:255',
-                'author' => 'required|string|max:255',
-                'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            ]);
-
-            $path = $request->file('image')->store('gambar-buku_api', 'public');
-
-            Buku::create([
-                'title' => $request->title,
-                'author' => $request->author,
-                'image' => $path,
-                'email' => $email,
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil ditambahkan.'
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'Anda Belum Login.'
-        ], 401);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $email = $request->header('Authorization');
-
         $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $bukuApi = Buku::where('id', $id)
-            ->where('email', $email)
-            ->first();
+        $path = $request->file('image')->store('buku', 'public');
+        $email = $request->header("Authorization");
 
-        if (!$bukuApi) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data tidak ditemukan atau Anda tidak memiliki akses.'
-            ], 404);
-        }
-
-        $bukuApi->title = $request->title;
-        $bukuApi->author = $request->author;
-
-        if ($request->hasFile('image')) {
-            if ($bukuApi->image && Storage::disk('public')->exists($bukuApi->image)) {
-                Storage::disk('public')->delete($bukuApi->image);
-            }
-
-            $path = $request->file('image')->store('gambar-buku_api', 'public');
-            $bukuApi->image = $path;
-        }
-
-        $bukuApi->save();
+        $buku = Buku::create([
+            'email' => $email,
+            'title' => $request->title,
+            'author' => $request->author,
+            'image' => $path,
+        ]);
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil diperbarui.'
+            "status" => "success",
+            "message" => "Buku berhasil ditambahkan."
         ]);
     }
 
     public function show($id)
     {
-        $buku = Buku::find($id);
-        if (!$buku) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data tidak ditemukan.'
-            ], 404);
-        }
-
-        return response()->json($buku);
+        return Buku::findOrFail($id);
     }
 
-    public function destroy(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        $email = $request->header('Authorization');
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'author' => 'sometimes|required|string|max:255',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
 
-        $bukuApi = Buku::where('id', $id)
-            ->where('email', $email)
-            ->first();
+        $buku = Buku::findOrFail($id);
 
-        if (!$bukuApi) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data tidak ditemukan atau Anda tidak memiliki akses.'
-            ], 404);
+        if ($request->hasFile('image')) {
+            Storage::disk('public')->delete($buku->image);
+            $path = $request->file('image')->store('buku', 'public');
+            $buku->image = $path;
         }
 
-        if ($bukuApi->image && Storage::disk('public')->exists($bukuApi->image)) {
-            Storage::disk('public')->delete($bukuApi->image);
+        if ($request->has('title')) {
+            $buku->title = $request->title;
         }
 
-        $bukuApi->delete();
+        if ($request->has('author')) {
+            $buku->author = $request->author;
+        }
+
+        $buku->save();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Data berhasil dihapus.'
+            'message' => 'Buku berhasil diperbarui'
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $buku = Buku::findOrFail($id);
+        Storage::disk('public')->delete($buku->image);
+        $buku->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Buku berhasil dihapus'
         ]);
     }
 }
